@@ -183,8 +183,7 @@ class BrandController extends Controller
                 'description_en' => $brand->description_en,
                 'description_de' => $brand->description_de,
                 'description_fr' => $brand->description_fr,
-                'description_nl' => $brand->description_nl,
-                'description_pl' => $brand->description_pl,
+                'description_it' => $brand->description_it,
                 // Manufacturer fields
                 'mfr' => $brand->mfr,
                 'mfr_address' => $brand->mfr_address,
@@ -229,10 +228,9 @@ class BrandController extends Controller
      */
     public function territories(): JsonResponse
     {
-        // Get all countries with their brands (excluding brands with hideOnMap = true)
+        // Get all countries with their brands
         $countries = Country::with(['brands' => function ($query) {
-            $query->where('hideOnMap', false)
-                  ->select('brands.code', 'brands.name')
+            $query->select('brands.code', 'brands.name')
                   ->orderBy('brands.code');
         }])
         ->orderBy('name')

@@ -24,9 +24,7 @@ class Brand extends Model
         'description_en',
         'description_de',
         'description_fr',
-        'description_nl',
-        'description_pl',
-        'hideOnMap',
+        'description_it',
         // Manufacturer fields
         'mfr',
         'mfr_address',
@@ -64,9 +62,7 @@ class Brand extends Model
      *
      * @var array<string, string>
      */
-    protected $casts = [
-        'hideOnMap' => 'boolean',
-    ];
+    protected $casts = [];
 
     /**
      * Boot the model and set up event listeners.

@@ -9,69 +9,67 @@ use Illuminate\Support\Str;
 
 class BrandSyncCommand extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'sync:brands';
+  /**
+   * The name and signature of the console command.
+   *
+   * @var string
+   */
+  protected $signature = 'sync:brands';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Import and update Marke values from Sage';
+  /**
+   * The console command description.
+   *
+   * @var string
+   */
+  protected $description = 'Import and update Marke values from Sage';
 
-    /**
-     * Execute the console command.
-     */
-    public function handle(CsvDecodeAction $action)
-    {
-        $server = env('SSG_SERVER');
-        $user = env('SSG_USER');
-        $pass = env('SSG_PASS');
+  /**
+   * Execute the console command.
+   */
+  public function handle(CsvDecodeAction $action)
+  {
+    $server = env('SSG_SERVER');
+    $user = env('SSG_USER');
+    $pass = env('SSG_PASS');
 
-        $this->info('Updating brands table');
+    $this->info('Updating brands table');
 
-        $src = "ftp://$user:$pass@$server/Labs/marke.csv";
-        $brands = $action->handle($src, ',');
+    $src = "ftp://$user:$pass@$server/" . env('FEED_SUBFOLDER') . "/" . env('FEED_BRANDS');
+    $brands = $action->handle($src, ',');
 
-        $activeBrands = array_filter($brands, function($brand) {
-            return $brand['active'] == 1;
-        });
+    $activeBrands = array_filter($brands, function ($brand) {
+      return $brand['active'] == 1;
+    });
 
-        $data = array_map(function($brand) {
-            // Helper function to convert empty strings to null
-            $emptyToNull = function($value) {
-                return ($value === '' || $value === null) ? null : $value;
-            };
+    $data = array_map(function ($brand) {
+      // Helper function to convert empty strings to null
+      $emptyToNull = function ($value) {
+        return ($value === '' || $value === null) ? null : $value;
+      };
 
-            return [
-                'code' => $brand['code'],
-                'name' => $brand['name'],
-                'slug' => Str::slug($brand['name']),
-                'hideOnMap' => $brand['hide'] ?? 0,
-                'description_en' => $emptyToNull($brand['description_en'] ?? null),
-                'description_de' => $emptyToNull($brand['description_de'] ?? null),
-                'description_fr' => $emptyToNull($brand['description_fr'] ?? null),
-                'description_nl' => $emptyToNull($brand['description_nl'] ?? null),
-                'description_pl' => $emptyToNull($brand['description_pl'] ?? null),
-                'updated_at' => now(),
-            ];
-        }, $activeBrands);
+      return [
+        'code' => $brand['code'],
+        'name' => $brand['name'],
+        'slug' => Str::slug($brand['name']),
+        'description_en' => $emptyToNull($brand['description_en'] ?? null),
+        'description_de' => $emptyToNull($brand['description_de'] ?? null),
+        'description_fr' => $emptyToNull($brand['description_fr'] ?? null),
+        'description_it' => $emptyToNull($brand['description_it'] ?? null),
+        'updated_at' => now(),
+      ];
+    }, $activeBrands);
 
 
-        if (!empty($data)) {
-            Brand::upsert(
-                $data,
-                ['code'],
-                ['name', 'slug', 'updated_at', 'description_en', 'description_de', 'description_fr', 'description_nl', 'description_pl', 'hideOnMap']
-            );
+    if (!empty($data)) {
+      Brand::upsert(
+        $data,
+        ['code'],
+        ['name', 'slug', 'updated_at', 'description_en', 'description_de', 'description_fr', 'description_it']
+      );
 
-            $this->info('Successfully synced ' . count($data) . ' brands with auto-generated slugs');
-        } else {
-            $this->warn('No brands to sync');
-        }
+      $this->info('Successfully synced ' . count($data) . ' brands with auto-generated slugs');
+    } else {
+      $this->warn('No brands to sync');
     }
+  }
 }
