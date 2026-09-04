@@ -120,7 +120,7 @@ class Brand extends Model
                       ->where('published', true);
                 });
             })
-            ->orderBy('name_en')
+            ->orderBy('name_de')
             ->get();
     }
 }
