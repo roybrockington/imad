@@ -16,6 +16,7 @@ class RegionSeeder extends Seeder
     Region::firstOrCreate(
       ['code' => 'ch'],
       [
+        'id' => 3,
         'name' => 'Switzerland',
       ]
     );

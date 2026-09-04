@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\Country;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class CountrySeeder extends Seeder
 {
@@ -15,8 +15,16 @@ class CountrySeeder extends Seeder
   {
     $countries = [
       ['code' => 'CH', 'name' => 'Switzerland'],
+      ['code' => 'JP', 'name' => 'Japanese'],
+      ['code' => 'GB', 'name' => 'United Kingdom'],
     ];
 
-    DB::table('countries')->insert($countries);
+    foreach ($countries as $country) {
+      Country::firstOrCreate([
+        'code' => $country['code']
+      ], [
+        'name' => $country['name'],
+      ]);
+    }
   }
 }

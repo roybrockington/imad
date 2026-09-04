@@ -45,13 +45,13 @@ class AccountSyncCommand extends Command
 
     $this->info('Updating accounts table');
 
-    $src = "ftp://$user:$pass@$server/Labs/kunden.csv";
+    $src = "ftp://$user:$pass@$server/" . env('FEED_SUBFOLDER') . "/" . env('FEED_ACCOUNTS');
     $accounts = $action->handle($src, ',');
 
     $existingAccounts = Account::whereIn('code', array_column($accounts, 'code'))
       ->get()
       ->keyBy(function ($account) {
-        return $account->code . '_' . $account->region_id > 1 ? 2 : 1;
+        return $account->code . '_ch';
       });
 
     $toUpdate = [];
@@ -71,7 +71,7 @@ class AccountSyncCommand extends Command
         " [" . $status . "]"
       );
 
-      if (!$skip && $account['region'] !== null && $account['region'] !== 'ch') {
+      if (!$skip && $account['region'] !== null && $account['country'] === 'CH') {
         $term = Term::firstWhere('code', $account['term']);
         if ($term == null) {
           $term = Term::create([
@@ -105,7 +105,7 @@ class AccountSyncCommand extends Command
     // d
     if ($this->option('discount') || $this->option('all')) {
       $this->info('Updating discount table');
-      $src = "ftp://$user:$pass@$server/Labs/discount_de.csv";
+      $src = "ftp://$user:$pass@$server/Labs/discount_ch.csv";
       $discounts = $action->handle($src, ',');
 
       $this->info('Pre-loading accounts and brands...');
@@ -120,7 +120,7 @@ class AccountSyncCommand extends Command
       $data = [];
 
       foreach ($discounts as $discount) {
-        $region = $discount['region'] > 1 ? 2 : 1; // Sanitize any 4 or 5 PLN or CZK keys
+        $region = $discount['region']; // Sanitize any 4 or 5 PLN or CZK keys
         $accountKey = "{$discount['customer']}_{$region}";
 
         if (isset($accounts[$accountKey]) && isset($brands[$discount['brand']])) {
@@ -162,9 +162,10 @@ class AccountSyncCommand extends Command
 
       foreach ($categories as $category) {
 
-        $region = Region::where('code', $category['region'])->first()->id;
+        $region = $category['region'];
 
-        if (Account::where('code', $category['customer'])
+        if (
+          Account::where('code', $category['customer'])
           ->where('region_id', $region)
           ->first() && Category::where('code', $category['group'])
           ->first()

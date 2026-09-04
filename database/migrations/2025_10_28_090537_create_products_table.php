@@ -21,8 +21,8 @@ return new class extends Migration
       $table->decimal('trade_ch', 10, 2);
       $table->date('promo_start')->nullable();
       $table->date('promo_end')->nullable();
-      $table->integer('qty_break');
-      $table->decimal('qty_discount');
+      $table->integer('qty_break_ch');
+      $table->decimal('qty_discount_ch');
       $table->decimal('promo_ch', 10, 2)->nullable();
       $table->string('ean', 13)->nullable();
       $table->boolean('available_for_sale')->default(false);

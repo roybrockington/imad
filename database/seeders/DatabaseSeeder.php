@@ -25,6 +25,9 @@ class DatabaseSeeder extends Seeder
     Artisan::call('sync:categories');
     Artisan::call('sync:products');
 
+    Artisan::call('sync:terms');
+    Artisan::call('sync:accounts -dc');
+
     $this->call(BrandSlugSeeder::class);
   }
 }
